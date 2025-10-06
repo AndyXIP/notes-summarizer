@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Your Notes</h2>
+{% if notes %}
+    <ul>
+        {% for note in notes %}
+        <li>
+            <a href="{{ url_for('main.view_note', note_id=note.id) }}">{{ note.title }}</a>
+            <small>{{ note.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No notes yet. <a href="{{ url_for('main.new_note') }}">Create one!</a></p>
+{% endif %}
+{% endblock %}

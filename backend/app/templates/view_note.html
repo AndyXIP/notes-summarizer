@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>{{ note.title }}</h2>
+<p>{{ note.content }}</p>
+
+<form method="POST" action="{{ url_for('main.summarize_note', note_id=note.id) }}">
+    <button type="submit">Summarize</button>
+</form>
+
+<a href="{{ url_for('main.index') }}">Back to Notes</a>
+{% endblock %}
