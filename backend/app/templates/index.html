@@ -3,15 +3,25 @@
 {% block content %}
 <h2>Your Notes</h2>
 {% if notes %}
-    <ul>
-        {% for note in notes %}
-        <li>
-            <a href="{{ url_for('main.view_note', note_id=note.id) }}">{{ note.title }}</a>
-            <small>{{ note.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-        </li>
-        {% endfor %}
-    </ul>
+        <ul class="notes-list">
+                {% for note in notes %}
+                <li class="note-item">
+                        <div class="note-main">
+                            <a href="{{ url_for('main.view_note', note_id=note.id) }}">{{ note.title }}</a>
+                            <small>{{ note.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <div class="note-actions">
+                            <form method="POST" action="{{ url_for('main.summarize_note', note_id=note.id) }}" style="display:inline">
+                                <button type="submit">Summarize</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('main.delete_note', note_id=note.id) }}" style="display:inline" onsubmit="return confirm('Delete this note?');">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </div>
+                </li>
+                {% endfor %}
+        </ul>
 {% else %}
-    <p>No notes yet. <a href="{{ url_for('main.new_note') }}">Create one!</a></p>
+        <p>No notes yet. <a href="{{ url_for('main.new_note') }}">Create one!</a> or <a href="{{ url_for('main.upload_note') }}">upload one</a>.</p>
 {% endif %}
 {% endblock %}
