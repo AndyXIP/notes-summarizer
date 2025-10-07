@@ -17,10 +17,7 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     # Ensure instance folder exists
-    try:
-        os.makedirs(app.instance_path, exist_ok=True)
-    except OSError:
-        pass
+    os.makedirs(app.instance_path, exist_ok=True)
 
     # Initialize database
     db.init_app(app)
@@ -28,5 +25,10 @@ def create_app(test_config=None):
     # Import and register blueprints
     from .routes import main
     app.register_blueprint(main)
+
+    # Error for file size limit
+    @app.errorhandler(413)
+    def request_entity_too_large(error):
+        return "File is too large. Max size is {} MB.".format(app.config['MAX_CONTENT_LENGTH'] // (1024*1024)), 413
 
     return app

@@ -8,6 +8,7 @@ os.makedirs(instance_path, exist_ok=True)
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB max file size
 
 class DevelopmentConfig(Config):
     DEBUG = True
