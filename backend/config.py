@@ -9,6 +9,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB max file size
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 class DevelopmentConfig(Config):
     DEBUG = True

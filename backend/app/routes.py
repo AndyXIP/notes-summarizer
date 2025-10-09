@@ -1,4 +1,6 @@
 import io
+import requests
+import json
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader
@@ -13,6 +15,66 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf'}
 def allowed_file(filename: str) -> bool:
     """Return True if filename has an allowed extension."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def summarize_with_openai(content: str) -> str:
+    """
+    Use OpenAI API to generate a summary of the given content using direct HTTP requests.
+    Returns a summary string or raises an exception if API call fails.
+    """
+    api_key = current_app.config.get('OPENAI_API_KEY')
+    if not api_key:
+        raise ValueError("OpenAI API key not configured")
+    
+    # Debug: Check if API key is loaded (don't log the actual key!)
+    current_app.logger.info(f"API key loaded: {bool(api_key) and len(api_key) > 10}")
+    
+    # Create a prompt for summarization
+    prompt = f"""Please provide a concise summary of the following text. 
+Focus on the main points and key information. Keep the summary between 100-300 words.
+
+Text to summarize:
+{content}
+
+Summary:"""
+    
+    # Prepare the API request
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    data = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant that creates clear, concise summaries of text content."},
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": 400,
+        "temperature": 0.3
+    }
+    
+    try:
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=data,
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            current_app.logger.error(f"OpenAI API error: {response.status_code} - {response.text}")
+            raise Exception(f"OpenAI API returned status {response.status_code}")
+        
+        result = response.json()
+        return result['choices'][0]['message']['content'].strip()
+        
+    except requests.exceptions.RequestException as e:
+        current_app.logger.error(f"Network error calling OpenAI API: {str(e)}")
+        raise
+    except (KeyError, IndexError) as e:
+        current_app.logger.error(f"Unexpected OpenAI API response format: {str(e)}")
+        raise
 
 
 @main.route('/')
@@ -123,15 +185,41 @@ def view_note(note_id):
 @main.route('/note/<int:note_id>/summarize', methods=['POST'])
 def summarize_note(note_id):
     """
-    Placeholder summarization endpoint.
-    Replace this with a real summarizer (AI service, algorithm, or background job).
+    Generate an AI-powered summary of the note using OpenAI API.
     """
     note = Note.query.get_or_404(note_id)
-    # TEMP: simple slice summary — replace with your summarization logic
-    summary = (note.content or '')[:500].strip()
-    if len(note.content or '') > 500:
-        summary += '...'
-    return render_template('summary.html', note=note, summary=summary)
+    
+    if not note.content or not note.content.strip():
+        flash('Cannot summarize an empty note.', 'warning')
+        return redirect(url_for('main.view_note', note_id=note_id))
+    
+    try:
+        summary = summarize_with_openai(note.content)
+        return render_template('summary.html', note=note, summary=summary)
+    
+    except ValueError as e:
+        # Configuration error (missing API key)
+        current_app.logger.error(f"Configuration error: {str(e)}")
+        flash('AI summarization is not configured. Please contact the administrator.', 'danger')
+        return redirect(url_for('main.view_note', note_id=note_id))
+    
+    except Exception as e:
+        # Check if it's a quota/billing issue
+        if "429" in str(e) or "quota" in str(e).lower():
+            # Provide a simple fallback summary for demo purposes
+            words = note.content.split()
+            if len(words) > 100:
+                summary = ' '.join(words[:100]) + '...\n\n[Demo Summary - OpenAI quota exceeded. This is a simple text truncation.]'
+            else:
+                summary = note.content + '\n\n[Demo Summary - OpenAI quota exceeded. Full text shown.]'
+            
+            flash('AI summarization quota exceeded. Showing simple summary for demo.', 'warning')
+            return render_template('summary.html', note=note, summary=summary)
+        else:
+            # Other API or network errors
+            current_app.logger.exception('Failed to generate summary with OpenAI')
+            flash('Failed to generate summary. Please try again later.', 'danger')
+            return redirect(url_for('main.view_note', note_id=note_id))
 
 
 @main.route('/note/<int:note_id>/delete', methods=['POST'])
