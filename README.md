@@ -39,7 +39,8 @@ A modern web application built with Flask that allows users to manage their note
 2. **Set up virtual environment**
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   source .venv/bin/activate
+   # On Windows: .venv\Scripts\activate
    ```
 
 3. **Install dependencies**
@@ -67,7 +68,7 @@ A modern web application built with Flask that allows users to manage their note
 
 7. **Open your browser** and navigate to `http://localhost:5000`
 
-## 📋 Usage
+## Usage
 
 ### Creating Notes
 - Click "New Note" to manually create a note with title and content
@@ -82,7 +83,7 @@ A modern web application built with Flask that allows users to manage their note
 - **PDF**: Automatic text extraction from PDF documents
 - **TXT**: Plain text file import
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 notes-summarizer/
@@ -99,6 +100,8 @@ notes-summarizer/
 │   ├── run.py                   # Application entry point
 │   ├── requirements.txt         # Python dependencies
 │   └── .env                     # Environment variables
+└── .gitignore
+└── LICENSE
 └── README.md
 ```
 
@@ -121,7 +124,7 @@ DATABASE_URL=sqlite:///instance/notes.sqlite  # Optional
 3. Add billing information (GPT-3.5-turbo costs ~$0.002 per 1K tokens)
 4. Add your API key to the `.env` file
 
-## 🎯 Key Features Explained
+## Key Features Explained
 
 ### Smart Summary Caching
 - Summaries are stored in the database after generation
@@ -138,21 +141,7 @@ DATABASE_URL=sqlite:///instance/notes.sqlite  # Optional
 - Automatic timestamps for notes
 - Migration scripts for schema updates
 
-## 🚧 Development
-
-### Running Tests
-```bash
-# Future: Add test suite
-python -m pytest tests/
-```
-
-### Development Mode
-```bash
-# Run with debug mode
-FLASK_ENV=development python run.py
-```
-
-## 📈 Future Enhancements
+## Future Enhancements
 
 - [ ] User authentication and multi-user support
 - [ ] Note categories and tagging system
@@ -162,17 +151,17 @@ FLASK_ENV=development python run.py
 - [ ] Batch summarization
 - [ ] Different summary styles (brief, detailed, bullet points)
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [OpenAI](https://openai.com/) for providing the GPT API
 - [Flask](https://flask.palletsprojects.com/) for the excellent web framework
 - [PyPDF2](https://pypdf2.readthedocs.io/) for PDF text extraction
 
-## 📞 Contact
+## Contact
 
 Andy - [@AndyXIP](https://github.com/AndyXIP)
 

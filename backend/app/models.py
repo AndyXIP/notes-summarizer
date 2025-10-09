@@ -5,7 +5,7 @@ class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    summary = db.Column(db.Text, nullable=True)  # Store generated AI summary
+    summary = db.Column(db.Text, nullable=True)
     timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
