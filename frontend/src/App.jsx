@@ -51,6 +51,23 @@ function App() {
     loadNotes();
   }
 
+  const [deleteError, setDeleteError] = useState('');
+
+  async function handleDelete(id) {
+    setDeleteError('');
+    try {
+      const result = await deleteNote(id);
+      if (result.error) {
+        setDeleteError(result.error);
+      } else {
+        setSelectedNote(null);
+        loadNotes();
+      }
+    } catch (err) {
+      setDeleteError('Delete failed.');
+    }
+  }
+
   async function handleFileUpload(e) {
     e.preventDefault();
     setUploadError('');
@@ -117,6 +134,7 @@ function App() {
           </form>
 
           <h2 style={{ marginTop: '2rem' }}>All Notes</h2>
+          {deleteError && <div style={{ color: 'red', marginBottom: 8 }}>{deleteError}</div>}
           {loading ? <div>Loading...</div> : (
             <ul style={{ listStyle: 'none', padding: 0 }}>
               {notes.map(note => (

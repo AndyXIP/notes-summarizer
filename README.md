@@ -1,6 +1,6 @@
-# Notes Summarizer
 
-A modern web application built with Flask that allows users to manage their notes and automatically generate AI-powered summaries using OpenAI's GPT models.
+
+# Notes Summarizer
 
 ## Features
 
@@ -11,77 +11,16 @@ A modern web application built with Flask that allows users to manage their note
 - **Summary Management**: Regenerate summaries when needed
 - **Real-time Feedback**: Comprehensive error handling with user-friendly messages
 - **Responsive Design**: Clean, intuitive user interface
+- **React Frontend**: Fast, modern UI built with Vite + React
 
 ## Technology Stack
 
+- **Frontend**: React (Vite)
 - **Backend**: Flask (Python)
 - **Database**: SQLAlchemy with SQLite
 - **AI Integration**: OpenAI API
 - **File Processing**: PyPDF2 for PDF text extraction
-- **Frontend**: Jinja2 templates with HTML/CSS
 - **Environment Management**: python-dotenv
-
-## Installation and Setup
-
-### Prerequisites
-
-- Python 3.8+
-- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/AndyXIP/notes-summarizer.git
-   cd notes-summarizer
-   ```
-
-2. **Set up virtual environment**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment variables**
-   ```bash
-   # Create .env file in the backend directory
-   echo "OPENAI_API_KEY=your-openai-api-key-here" > .env
-   echo "SECRET_KEY=your-secret-key-here" >> .env
-   ```
-
-5. **Initialize the database**
-   ```bash
-   python create_db.py
-   ```
-
-6. **Run the application**
-   ```bash
-   python run.py
-   ```
-
-7. **Open your browser** and navigate to `http://localhost:5000`
-
-## Usage
-
-### Creating Notes
-- Click "New Note" to manually create a note with title and content
-- Use "Upload" to import content from PDF or TXT files
-
-### AI Summarization
-- Click "Summarize" on any note to generate an AI summary
-- Summaries are automatically saved to prevent redundant API calls
-- Use "Regenerate Summary" to create a new summary if needed
-
-### File Formats Supported
-- **PDF**: Automatic text extraction from PDF documents
-- **TXT**: Plain text file import
 
 ## Project Structure
 
@@ -100,15 +39,69 @@ notes-summarizer/
 │   ├── run.py                   # Application entry point
 │   ├── requirements.txt         # Python dependencies
 │   └── .env                     # Environment variables
-└── .gitignore
-└── LICENSE
+├── frontend/
+│   ├── src/App.jsx              # Main React component
+│   ├── src/api.js               # API utility for backend
+│   └── ...                      # Other frontend files
 └── README.md
 ```
+
+## Cloning & Setup
+
+### Prerequisites
+- Python 3.8+
+- Node.js & npm
+- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+
+### Clone the repository
+```bash
+git clone https://github.com/AndyXIP/notes-summarizer.git
+cd notes-summarizer
+```
+
+## Backend Setup
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+# On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+# Create .env file in the backend directory
+echo "OPENAI_API_KEY=your-openai-api-key-here" > .env
+echo "SECRET_KEY=your-secret-key-here" >> .env
+python create_db.py
+python run.py
+```
+
+## Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+> The React frontend communicates with the Flask backend at `http://127.0.0.1:5000`. Make sure the backend is running before using the frontend.
+
+## Usage
+
+### Creating Notes
+- Use the React app to manually create a note with title and content
+- Use "Upload" to import content from PDF or TXT files
+
+### AI Summarization
+- Click "Summarize" on any note to generate an AI summary
+- Summaries are automatically saved to prevent redundant API calls
+- Use "Regenerate Summary" to create a new summary if needed
+
+### File Formats Supported
+- **PDF**: Automatic text extraction from PDF documents
+- **TXT**: Plain text file import
 
 ## 🔧 Configuration
 
 ### Environment Variables
-
 Create a `.env` file in the `backend` directory:
 
 ```env
@@ -118,7 +111,6 @@ DATABASE_URL=sqlite:///instance/notes.sqlite  # Optional
 ```
 
 ### OpenAI API Setup
-
 1. Sign up at [OpenAI Platform](https://platform.openai.com/)
 2. Generate an API key from the API keys section
 3. Add billing information (GPT-3.5-turbo costs ~$0.002 per 1K tokens)
@@ -147,7 +139,6 @@ DATABASE_URL=sqlite:///instance/notes.sqlite  # Optional
 - [ ] Note categories and tagging system
 - [ ] Search functionality
 - [ ] Export options (PDF, Word)
-- [ ] RESTful API for mobile/React frontend
 - [ ] Batch summarization
 - [ ] Different summary styles (brief, detailed, bullet points)
 
