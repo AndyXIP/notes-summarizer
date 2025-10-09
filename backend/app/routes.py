@@ -61,6 +61,14 @@ Summary:"""
         raise
 
 
+@main.route('/', methods=['GET'])
+def root():
+    """
+    Root endpoint for health check and welcome message.
+    """
+    return jsonify({"message": "Reached Notes Summarizer backend API."})
+
+
 @main.route('/api/notes', methods=['GET'])
 def list_notes():
     """

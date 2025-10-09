@@ -8,7 +8,7 @@ db = SQLAlchemy()
 def create_app(test_config=None):
     # Create and configure the Flask app
     app = Flask(__name__, instance_relative_config=True)
-    
+
     # Load default development config
     app.config.from_object(DevelopmentConfig)
 
@@ -21,6 +21,13 @@ def create_app(test_config=None):
 
     # Initialize database
     db.init_app(app)
+
+    # Enable CORS for frontend access
+    try:
+        from flask_cors import CORS
+        CORS(app)
+    except ImportError:
+        pass
 
     # Import and register blueprints
     from .routes import main
