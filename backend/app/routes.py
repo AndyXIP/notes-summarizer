@@ -1,9 +1,8 @@
 import io
-import requests
-import json
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader
+from openai import OpenAI
 
 from . import db
 from .models import Note
@@ -19,7 +18,7 @@ def allowed_file(filename: str) -> bool:
 
 def summarize_with_openai(content: str) -> str:
     """
-    Use OpenAI API to generate a summary of the given content using direct HTTP requests.
+    Use OpenAI API to generate a summary using the official OpenAI library.
     Returns a summary string or raises an exception if API call fails.
     """
     api_key = current_app.config.get('OPENAI_API_KEY')
@@ -28,6 +27,9 @@ def summarize_with_openai(content: str) -> str:
     
     # Debug: Check if API key is loaded (don't log the actual key!)
     current_app.logger.info(f"API key loaded: {bool(api_key) and len(api_key) > 10}")
+    
+    # Initialize OpenAI client (official way)
+    client = OpenAI(api_key=api_key)
     
     # Create a prompt for summarization
     prompt = f"""Please provide a concise summary of the following text. 
@@ -38,42 +40,21 @@ Text to summarize:
 
 Summary:"""
     
-    # Prepare the API request
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    
-    data = {
-        "model": "gpt-3.5-turbo",
-        "messages": [
-            {"role": "system", "content": "You are a helpful assistant that creates clear, concise summaries of text content."},
-            {"role": "user", "content": prompt}
-        ],
-        "max_tokens": 400,
-        "temperature": 0.3
-    }
-    
     try:
-        response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers=headers,
-            json=data,
-            timeout=30
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that creates clear, concise summaries of text content."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=400,
+            temperature=0.3
         )
         
-        if response.status_code != 200:
-            current_app.logger.error(f"OpenAI API error: {response.status_code} - {response.text}")
-            raise Exception(f"OpenAI API returned status {response.status_code}")
+        return response.choices[0].message.content.strip()
         
-        result = response.json()
-        return result['choices'][0]['message']['content'].strip()
-        
-    except requests.exceptions.RequestException as e:
-        current_app.logger.error(f"Network error calling OpenAI API: {str(e)}")
-        raise
-    except (KeyError, IndexError) as e:
-        current_app.logger.error(f"Unexpected OpenAI API response format: {str(e)}")
+    except Exception as e:
+        current_app.logger.error(f"OpenAI API error: {str(e)}")
         raise
 
 
@@ -185,7 +166,7 @@ def view_note(note_id):
 @main.route('/note/<int:note_id>/summarize', methods=['POST'])
 def summarize_note(note_id):
     """
-    Generate an AI-powered summary of the note using OpenAI API.
+    Generate an AI-powered summary of the note and save it to the database.
     """
     note = Note.query.get_or_404(note_id)
     
@@ -193,9 +174,20 @@ def summarize_note(note_id):
         flash('Cannot summarize an empty note.', 'warning')
         return redirect(url_for('main.view_note', note_id=note_id))
     
+    # Check if summary already exists
+    if note.summary:
+        flash('Summary already exists for this note.', 'info')
+        return redirect(url_for('main.view_note', note_id=note_id))
+    
     try:
         summary = summarize_with_openai(note.content)
-        return render_template('summary.html', note=note, summary=summary)
+        
+        # Save summary to database
+        note.summary = summary
+        db.session.commit()
+        
+        flash('Summary generated and saved successfully!', 'success')
+        return redirect(url_for('main.view_note', note_id=note_id))
     
     except ValueError as e:
         # Configuration error (missing API key)
@@ -213,13 +205,53 @@ def summarize_note(note_id):
             else:
                 summary = note.content + '\n\n[Demo Summary - OpenAI quota exceeded. Full text shown.]'
             
-            flash('AI summarization quota exceeded. Showing simple summary for demo.', 'warning')
-            return render_template('summary.html', note=note, summary=summary)
+            # Save fallback summary to database
+            try:
+                note.summary = summary
+                db.session.commit()
+                flash('AI summarization quota exceeded. Saved simple summary for demo.', 'warning')
+            except Exception:
+                db.session.rollback()
+                flash('AI summarization quota exceeded. Showing simple summary for demo.', 'warning')
+            
+            return redirect(url_for('main.view_note', note_id=note_id))
         else:
             # Other API or network errors
             current_app.logger.exception('Failed to generate summary with OpenAI')
             flash('Failed to generate summary. Please try again later.', 'danger')
             return redirect(url_for('main.view_note', note_id=note_id))
+
+
+@main.route('/note/<int:note_id>/regenerate-summary', methods=['POST'])
+def regenerate_summary(note_id):
+    """
+    Regenerate the AI summary for a note (even if one already exists).
+    """
+    note = Note.query.get_or_404(note_id)
+    
+    if not note.content or not note.content.strip():
+        flash('Cannot summarize an empty note.', 'warning')
+        return redirect(url_for('main.view_note', note_id=note_id))
+    
+    try:
+        summary = summarize_with_openai(note.content)
+        
+        # Update existing summary in database
+        note.summary = summary
+        db.session.commit()
+        
+        flash('Summary regenerated successfully!', 'success')
+        return redirect(url_for('main.view_note', note_id=note_id))
+    
+    except ValueError as e:
+        current_app.logger.error(f"Configuration error: {str(e)}")
+        flash('AI summarization is not configured. Please contact the administrator.', 'danger')
+        return redirect(url_for('main.view_note', note_id=note_id))
+    
+    except Exception as e:
+        current_app.logger.exception('Failed to regenerate summary with OpenAI')
+        flash('Failed to regenerate summary. Please try again later.', 'danger')
+        return redirect(url_for('main.view_note', note_id=note_id))
 
 
 @main.route('/note/<int:note_id>/delete', methods=['POST'])
