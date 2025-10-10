@@ -28,13 +28,13 @@ def summarize_with_openai(content: str) -> str:
     if not api_key:
         raise ValueError("OpenAI API key not configured")
     
-    # Debug: Check if API key is loaded (don't log the actual key!)
+    # Debug: Check if API key is loaded
     current_app.logger.info(f"API key loaded: {bool(api_key) and len(api_key) > 10}")
     
-    # Initialize OpenAI client (official way)
+    # Initialize OpenAI client
     client = OpenAI(api_key=api_key)
     
-    # Create a prompt for summarization
+    # Prompt for summarization
     prompt = f"""Please provide a concise summary of the following text. 
 Focus on the main points and key information. Keep the summary between 100-300 words.
 

@@ -1,8 +1,0 @@
-{% extends 'layout.html' %}
-
-{% block content %}
-<h2>{{ note.title }} - Summary</h2>
-<p>{{ summary }}</p>
-
-<a href="{{ url_for('main.view_note', note_id=note.id) }}">Back to Note</a>
-{% endblock %}
