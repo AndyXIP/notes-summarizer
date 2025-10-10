@@ -1,4 +1,3 @@
-// Basic API utility for Flask backend
 const API_BASE = 'http://127.0.0.1:5000/api/notes';
 
 export async function fetchNotes() {
