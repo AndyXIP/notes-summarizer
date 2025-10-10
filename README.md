@@ -31,7 +31,6 @@ notes-summarizer/
 │   │   ├── __init__.py          # Flask app factory
 │   │   ├── models.py            # Database models
 │   │   ├── routes.py            # Application routes
-│   │   └── templates/           # Jinja2 templates
 │   ├── instance/
 │   │   └── notes.sqlite         # SQLite database
 │   ├── config.py                # Configuration settings
