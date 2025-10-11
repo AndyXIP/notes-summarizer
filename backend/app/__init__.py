@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from config import DevelopmentConfig
+from flask_cors import CORS
 
 db = SQLAlchemy()
 

@@ -1,8 +1,9 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchNotes, createNote, deleteNote, getNote, summarizeNote } from './api';
+import type { Note } from './types';
 
-async function uploadFile(file) {
+async function uploadFile(file: File) {
   const formData = new FormData();
   formData.append('file', file);
   const res = await fetch('http://127.0.0.1:5000/api/notes/upload', {
@@ -13,13 +14,13 @@ async function uploadFile(file) {
 }
 
 function App() {
-  const [notes, setNotes] = useState([]);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [selectedNote, setSelectedNote] = useState(null);
-  const [summary, setSummary] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [title, setTitle] = useState<string>('');
+  const [content, setContent] = useState<string>('');
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [summary, setSummary] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string>('');
   useEffect(() => {
     loadNotes();
   }, []);
@@ -31,7 +32,7 @@ function App() {
     setLoading(false);
   }
 
-  async function handleCreate(e) {
+  async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     await createNote(title, content);
     setTitle('');
@@ -39,13 +40,13 @@ function App() {
     loadNotes();
   }
 
-  async function handleSelect(id) {
+  async function handleSelect(id: number) {
     const note = await getNote(id);
     setSelectedNote(note);
     setSummary(note.summary || '');
   }
 
-  async function handleSummarize(id) {
+  async function handleSummarize(id: number) {
     const res = await summarizeNote(id);
     setSummary(res.summary || '');
     loadNotes();
@@ -53,47 +54,53 @@ function App() {
 
   const [deleteError, setDeleteError] = useState('');
 
-  async function handleDelete(id) {
+  async function handleDelete(id: number) {
     setDeleteError('');
     try {
       const result = await deleteNote(id);
-      if (result.error) {
+      if ('error' in result) {
         setDeleteError(result.error);
       } else {
         setSelectedNote(null);
-        loadNotes();
+        await loadNotes();
       }
     } catch (err) {
       setDeleteError('Delete failed.');
     }
   }
 
-  async function handleFileUpload(e) {
+  async function handleFileUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setUploadError('');
-    const file = e.target.file.files[0];
+
+    const fileInput = e.currentTarget.elements.namedItem('file') as HTMLInputElement | null;
+    const file = fileInput?.files?.[0];
+
     if (!file) {
       setUploadError('No file selected.');
       return;
     }
+
     const allowed = ['txt', 'pdf'];
-    const ext = file.name.split('.').pop().toLowerCase();
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
     if (!allowed.includes(ext)) {
       setUploadError('Only TXT and PDF files allowed.');
       return;
     }
+
     try {
       const result = await uploadFile(file);
       if (result.error) {
         setUploadError(result.error);
       } else {
         setUploadError('');
-        loadNotes();
+        await loadNotes();
       }
     } catch (err) {
       setUploadError('Upload failed.');
     }
   }
+
 
   return (
     <div style={{
