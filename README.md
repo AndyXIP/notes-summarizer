@@ -39,8 +39,8 @@ notes-summarizer/
 │   ├── requirements.txt         # Python dependencies
 │   └── .env                     # Environment variables
 ├── frontend/
-│   ├── src/App.jsx              # Main React component
-│   ├── src/api.js               # API utility for backend
+│   ├── src/App.tsx              # Main React component
+│   ├── src/api.ts               # API utility for backend
 │   └── ...                      # Other frontend files
 └── README.md
 ```

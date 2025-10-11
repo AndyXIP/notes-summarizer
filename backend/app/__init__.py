@@ -25,7 +25,6 @@ def create_app(test_config=None):
 
     # Enable CORS for frontend access
     try:
-        from flask_cors import CORS
         CORS(app)
     except ImportError:
         pass
