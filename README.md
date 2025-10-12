@@ -72,6 +72,8 @@ python create_db.py
 python run.py
 ```
 
+Note: you may need to create an directory called 'instance' in the backend directory with a file called 'notes.sqlite' inside of it to work as the databse. Alternative databases can also be used but will need to have their paths updated in the .env or config.py file.
+
 ## Frontend Setup
 ```bash
 cd frontend
