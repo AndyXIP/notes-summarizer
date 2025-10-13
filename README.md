@@ -132,7 +132,6 @@ DATABASE_URL=sqlite:///instance/notes.sqlite  # Optional
 ### Database Design
 - Clean SQLAlchemy models with proper relationships
 - Automatic timestamps for notes
-- Migration scripts for schema updates
 
 ## Future Enhancements
 
@@ -153,12 +152,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Flask](https://flask.palletsprojects.com/) for the excellent web framework
 - [PyPDF2](https://pypdf2.readthedocs.io/) for PDF text extraction
 
-## Contact
-
-Andy - [@AndyXIP](https://github.com/AndyXIP)
-
-Project Link: [https://github.com/AndyXIP/notes-summarizer](https://github.com/AndyXIP/notes-summarizer)
-
 ---
-
-⭐ **If you found this project helpful, please give it a star!**
