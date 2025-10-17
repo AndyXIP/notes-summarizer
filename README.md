@@ -220,6 +220,8 @@ This project is licensed under the MIT License – see [LICENSE](LICENSE).
 
 ---
 
+## Acknowledgements
+
 - [OpenAI](https://openai.com/) for the GPT API
 - [Flask](https://flask.palletsprojects.com/) for the elegant web framework
 - [PyPDF2](https://pypdf2.readthedocs.io/) for lightweight PDF text extraction
