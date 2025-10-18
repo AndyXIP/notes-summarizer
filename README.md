@@ -2,7 +2,7 @@
 
 # Notes Summarizer
 
-![Status](https://img.shields.io/badge/Status-Archived-red)
+![Status](https://img.shields.io/badge/Status-Complete-success)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.x-000?logo=flask&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=06192E)
